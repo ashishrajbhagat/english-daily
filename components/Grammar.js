@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import Seg from "./Seg";
 import Line from "./Line";
+import PageHead from "./PageHead";
+import LevelSelect from "./LevelSelect";
 import { useApp } from "../lib/app";
 import { DATA } from "../lib/content";
 import { LEVELS, LV } from "../lib/levels";
 
-const LVL = LEVELS.map((l) => LV[l].ic + " " + l);
 
 function Lesson({ i, onBack }) {
   const g = DATA.GC[i];
@@ -25,6 +26,7 @@ function Lesson({ i, onBack }) {
       <div className="sm" style={{ marginTop: 14 }}>{LV[g[0]].ic} {g[0]}</div>
       <h2 style={{ marginTop: 4 }}>{g[1]}</h2>
       <div className="card">{g[2]}</div>
+      {g[6] && <div className="card" style={{ background: "var(--t3)" }}><div className="sm">हिंदी में</div><div>{g[6]}</div></div>}
       <div className="card" style={{ background: "var(--t2)" }}><div className="sm">Formula</div><div className="en">{g[3]}</div></div>
       <div className="sm">Examples: listen, then say them yourself</div>
       {g[4].map((t) => <Line key={t} t={t} />)}
@@ -57,12 +59,10 @@ export default function Grammar({ sub }) {
   const total = Object.keys(s.gd).length;
   return (
     <>
-      <h2>Grammar Course</h2>
-      <p className="sm">Short lessons: a simple rule, examples to say aloud and 2 practice questions. You have completed {total} of {DATA.GC.length} lessons.</p>
+      <PageHead title="Grammar Course" sub={"Short lessons with a Hindi note, examples to say aloud and 2 practice questions. " + total + " of " + DATA.GC.length + " lessons complete."} right={m === 0 ? <LevelSelect value={lv} onChange={setLv} /> : null} />
       <Seg items={["Course", "Quick tips"]} value={m} onChange={setM} />
       {m === 0 && (
         <>
-          <Seg items={LVL} value={lv} onChange={setLv} />
           <div className="card"><b>{LV[LEVELS[lv]].ic} {LEVELS[lv]}: {ld}/{items.length} lessons</b>
             <div className="bar" style={{ marginTop: 8 }}><i style={{ width: (ld / items.length) * 100 + "%" }} /></div>
           </div>

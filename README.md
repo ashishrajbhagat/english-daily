@@ -38,3 +38,23 @@ When all 30 days are complete, the Plan tab shows a completion card. "Start Roun
 - Three roadmaps in `lib/roadmaps.js`: Quick Start (15 days), Daily Habit (30 days) and Deep Fluency (60 days). Progress is stored per roadmap.
 - Tabs: Home, Roadmap, Speak, Words, Grammar (separate course, 4 levels), Quiz (quiz + mistake notebook).
 - Mobile-first CSS in `app/globals.css`; on desktop the footer, level, XP and streak live in the left sidebar.
+
+## v4 additions
+- Skills: Reading, Writing, Translate (Learn tab); Sounds (minimal pairs with IPA) and Numbers (Speak tab); Hindi note in every grammar lesson.
+- Account and settings: forgot/reset password, delete account (needs `SUPABASE_SERVICE_ROLE_KEY` on the server), reset progress, daily reminder (works while the app is open), optional leaderboard (run the new SQL in `supabase/schema.sql`).
+- Streak freeze (every 7-day streak earns one, max 2), certificate download after a roadmap, Privacy and Terms pages (templates: edit before launch), SEO (metadata, sitemap, robots, share image), optional Plausible analytics.
+- `npm test` checks content integrity and generates every roadmap day for every level.
+
+## Deploy checklist
+1. Push this folder to GitHub (repo name: english-daily).
+2. Import it in Vercel and add the environment variables from `.env.example`.
+3. In Supabase: run `supabase/schema.sql`, enable Email auth and add your site URL under Authentication > URL Configuration (needed for password reset links).
+4. Edit the contact email and wording in `app/privacy/page.js` and `app/terms/page.js`.
+
+## No AI subscription needed
+Everything works without any paid AI. Pronunciation coaching is rule-based (`lib/pron.js`) plus free IPA lookups (`lib/ipa.js`, dictionaryapi.dev; cached in the browser). You can add AI later without changing the app structure.
+
+## v6 additions
+- **Admin panel** at `/admin`: add phrases, words, phrasal verbs and quiz questions (with a level) without touching code. Run the new SQL in `supabase/schema.sql`, then make yourself an admin: `insert into public.admins (email) values ('you@example.com');`. An "Admin panel" button then appears in Account and settings.
+- **Background reminders** (work when the app is closed): generate VAPID keys (`npx web-push generate-vapid-keys`), set the VAPID, `CRON_SECRET` and `SUPABASE_SERVICE_ROLE_KEY` variables, and add GitHub secrets `SITE_URL` and `CRON_SECRET` so `.github/workflows/reminders.yml` can call `/api/push/send` every 15 minutes (free). Works on the deployed HTTPS site; iPhone needs the app added to the Home Screen.
+- **Record and compare**: record your own voice (up to 12 seconds) on any phrase and play it back next to the model voice.

@@ -1,0 +1,12 @@
+# Free scheduler for background reminders. Add two repository secrets: SITE_URL (https://your-site) and CRON_SECRET.
+name: Send reminders
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the reminder endpoint
+        run: curl -fsS -X POST "${{ secrets.SITE_URL }}/api/push/send" -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"

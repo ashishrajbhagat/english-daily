@@ -19,7 +19,7 @@ export default function InfoModal() {
           <li>Each correct quiz answer: +3</li>
           <li>Flashcard "I know it" or fixing a mistake: +2</li>
         </ul>
-        <div className="info"><span>🔥</span><div><b>Streak = days in a row</b><p>Do at least one activity every day to grow your streak. If you skip a day, it starts again from 1. Your streak is {s.streak}.</p></div></div>
+        <div className="info"><span>🔥</span><div><b>Streak = days in a row</b><p>Do at least one activity every day to grow your streak. If you skip a day, it starts again from 1. Your streak is {s.streak}.</p><p>❄️ Every 7-day streak earns a streak freeze (max 2) that protects one missed day. You have {s.fz || 0}.</p></div></div>
         <div className="info"><span>🎯</span><div><b>Level</b><p>Your English level (Beginner to Expert) decides which content you see. You can change it anytime.</p></div></div>
         <div className="row"><button className="b p" onClick={closeInfo}>Got it</button></div>
       </div>

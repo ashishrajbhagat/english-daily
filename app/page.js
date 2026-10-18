@@ -2,25 +2,30 @@
 import { useEffect, useState } from "react";
 import { AppProvider, useApp } from "../lib/app";
 import { LV } from "../lib/levels";
-import { toggleTheme } from "../lib/theme";
+import { toggleTheme, initTheme } from "../lib/theme";
 import AuthModal from "../components/AuthModal";
 import LevelPicker from "../components/LevelPicker";
 import InfoModal from "../components/InfoModal";
 import Home from "../components/Home";
 import Roadmaps from "../components/Roadmaps";
 import Practice from "../components/Practice";
-import Words from "../components/Words";
+import Learn from "../components/Learn";
 import Grammar from "../components/Grammar";
 import Test from "../components/Test";
 
-const TABS = [["home", "🏠", "Home"], ["roadmap", "🗺", "Roadmap"], ["speak", "🎤", "Speak"], ["words", "📚", "Words"], ["grammar", "📘", "Grammar"], ["test", "✅", "Quiz"]];
-const VIEW = { home: Home, roadmap: Roadmaps, speak: Practice, words: Words, grammar: Grammar, test: Test };
+const TABS = [["home", "🏠", "Home"], ["roadmap", "🗺", "Roadmap"], ["speak", "🎤", "Speak"], ["learn", "📚", "Learn"], ["grammar", "📘", "Grammar"], ["test", "✅", "Quiz"]];
+const VIEW = { home: Home, roadmap: Roadmaps, speak: Practice, learn: Learn, grammar: Grammar, test: Test };
+
+function Legal() {
+  return <><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></>;
+}
 
 function Shell() {
   const { s, user, level, ready, openAuth, openLevel, openInfo } = useApp();
   const [nav, setNav] = useState({ tab: "home", sub: 0 });
   const [date, setDate] = useState("");
   useEffect(() => {
+    initTheme();
     setDate(new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }));
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
   }, []);
@@ -29,10 +34,25 @@ function Shell() {
     window.scrollTo(0, 0);
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   }, [nav]);
+  // daily reminder (works while the app is open)
+  useEffect(() => {
+    const r = s.rem;
+    if (!r || !r.on || typeof Notification === "undefined") return;
+    const id = setInterval(() => {
+      const n = new Date();
+      const hm = String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");
+      const key = "ed-rem-" + n.toDateString();
+      if (hm === r.time && Notification.permission === "granted" && !localStorage.getItem(key) && s.day !== n.toDateString()) {
+        localStorage.setItem(key, "1");
+        new Notification("English Daily", { body: "Time for your daily English practice! 🦉" });
+      }
+    }, 20000);
+    return () => clearInterval(id);
+  }, [s.rem, s.day]);
   const go = (id) => { const [t, sb] = id.split(":"); setNav({ tab: t, sub: +sb || 0 }); };
   const View = VIEW[nav.tab];
-  const xp = <button className="chip" onClick={openInfo} aria-label="What is XP?">⭐ {s.xp}<span className="lbl"> XP</span></button>;
-  const st = <button className="chip" onClick={openInfo} aria-label="What is a streak?">🔥 {s.streak}<span className="lbl"> {s.streak === 1 ? "day" : "days"}</span></button>;
+  const xp = <button className="chip" onClick={openInfo} aria-label="What is XP?">⭐ {s.xp} XP</button>;
+  const st = <button className="chip" onClick={openInfo} aria-label="What is a streak?">🔥 {s.streak} {s.streak === 1 ? "day" : "days"}</button>;
   return (
     <div className="app">
       <aside className="side">
@@ -45,8 +65,9 @@ function Shell() {
             <span className="lvic">{LV[level].ic}</span><span><b>{level}</b><small>Your level · tap to change</small></span>
           </button>
           <div className="row">{xp}{st}</div>
-          <button className="b" onClick={toggleTheme}>🌓 Light / Dark</button>
+          <hr className="hr" />
           <p className="sm">English speaking practice for Hindi speakers. A little every day, no fear.</p>
+          <p className="sm"><Legal /></p>
           <p className="sm">© {new Date().getFullYear()} English Daily · Progress {user ? "saved in the cloud" : "saved on this device"}</p>
         </div>
       </aside>
@@ -55,13 +76,24 @@ function Shell() {
           <div className="logo" onClick={() => go("home")}>English<span>Daily</span></div>
           <div className="date">{date}</div>
           <div className="top">
-            {xp}{st}
-            <button className="acct" onClick={openAuth} aria-label="Account and settings">
-              {user ? <span className="av">{(user.email || "U")[0].toUpperCase()}</span> : "Login"}
+            <button className="ib" onClick={toggleTheme} title="Switch light or dark mode" aria-label="Switch light or dark mode">🌓</button>
+            <button className="ib prof" onClick={openAuth} aria-label="Account and settings" title="Account and settings">
+              {user ? <span className="av">{(user.email || "U")[0].toUpperCase()}</span> : "👤"}
             </button>
           </div>
         </header>
+        <div className="strip">
+          <button onClick={openInfo}><b>⭐ {s.xp}</b><span>XP points</span></button>
+          <button onClick={openInfo}><b>🔥 {s.streak}</b><span>day streak</span></button>
+          <button onClick={openLevel} style={{ "--lc": LV[level].c }} className="lv"><b>{LV[level].ic}</b><span>{level}</span></button>
+        </div>
         <main key={nav.tab + ":" + nav.sub}><View go={go} sub={nav.sub} /></main>
+        <footer className="foot">
+          <div className="logo">English<span>Daily</span></div>
+          <p className="sm">English speaking practice for Hindi speakers. A little every day, no fear.</p>
+          <p className="sm"><Legal /></p>
+          <p className="sm">© {new Date().getFullYear()} English Daily · Progress {user ? "saved in the cloud" : "saved on this device"}</p>
+        </footer>
       </div>
       <nav className="tabs">
         {TABS.map(([id, ic, l]) => (

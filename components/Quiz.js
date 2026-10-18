@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import Seg from "./Seg";
+import LevelSelect from "./LevelSelect";
 import { useApp } from "../lib/app";
-import { LEVELS, LV, quizPool } from "../lib/levels";
+import { LEVELS, quizPool } from "../lib/levels";
 
-const LVL = LEVELS.map((l) => LV[l].ic + " " + l);
 const mk = (lv) => [...quizPool(lv)].sort(() => Math.random() - 0.5).slice(0, 8);
 
 function Run({ lv }) {
@@ -52,8 +51,7 @@ export default function Quiz() {
   const [lv, setLv] = useState(Math.max(0, LEVELS.indexOf(level)));
   return (
     <>
-      <p className="sm">Quiz level</p>
-      <Seg items={LVL} value={lv} onChange={setLv} />
+      <div className="phead"><p className="sm">8 questions at your level. Wrong answers go to your mistake notebook.</p><LevelSelect value={lv} onChange={setLv} /></div>
       <Run key={lv} lv={lv} />
     </>
   );

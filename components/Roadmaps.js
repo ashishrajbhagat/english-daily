@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useApp } from "../lib/app";
 import { LV } from "../lib/levels";
+import { downloadCertificate } from "../lib/certificate";
 import { ROADMAPS, STAGES, stageCount, curDay, dayTasks } from "../lib/roadmaps";
 
 const dayDone = (rp, r, d, lv) => dayTasks(r, d, lv, rp.round || 0).every((t) => rp.pd[d + "-" + t.k]);
@@ -15,7 +16,7 @@ export const progressOf = (s, r) => {
 };
 
 function Detail({ id, back, go }) {
-  const { s, addXp, toggleTask, nextRound, resetRoadmap } = useApp();
+  const { s, addXp, toggleTask, nextRound, resetRoadmap, user } = useApp();
   const r = ROADMAPS.find((x) => x.id === id);
   const lv = s.level || "Beginner";
   const rp = s.rp[id];
@@ -41,7 +42,7 @@ function Detail({ id, back, go }) {
         <div className="card hero">
           <h2>🎉 Roadmap complete!</h2>
           <p>You finished every day. Your XP, lessons, badges and mistake notebook stay with you. Keep the habit going with Round {round + 2}: a fresh mix of phrases, words, topics and dialogues.</p>
-          <div className="row"><button className="b" onClick={() => nextRound(id)}>Start Round {round + 2}</button></div>
+          <div className="row"><button className="b" onClick={() => nextRound(id)}>Start Round {round + 2}</button><button className="b" onClick={() => { const nm = window.prompt("Name for your certificate:", s.nick || (user && user.email ? user.email.split("@")[0] : "")); if (nm !== null) downloadCertificate({ name: nm.trim(), title: r.name, level: lv, date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) }); }}>🎓 Download certificate</button></div>
         </div>
       )}
       {missed.length > 0 && (
@@ -102,7 +103,7 @@ export default function Roadmaps({ go }) {
   if (open) return <Detail id={open} back={() => setOpen(null)} go={go} />;
   return (
     <>
-      <h2>Roadmaps</h2>
+      <div className="phead"><div><h2>Roadmaps</h2></div></div>
       <p className="sm">A roadmap is a day-by-day plan. Pick one, finish the small daily tasks and you will see steady progress. Content matches your level: <b>{LV[lv].ic} {lv}</b> · <button className="lnk" onClick={openLevel}>change level</button></p>
       <div className="cols">
         {ROADMAPS.map((r) => {
