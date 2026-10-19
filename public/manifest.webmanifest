@@ -1,1 +1,60 @@
-{"name": "English Daily – English Speaking Practice", "short_name": "English Daily", "start_url": "/", "scope": "/", "display": "standalone", "background_color": "#fbf6ec", "theme_color": "#17140f", "icons": [{"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}]}
+{
+ "name": "English Daily – English Speaking Practice",
+ "short_name": "English Daily",
+ "start_url": "/",
+ "scope": "/",
+ "display": "standalone",
+ "background_color": "#fbf6ec",
+ "theme_color": "#17140f",
+ "icons": [
+  {
+   "src": "/icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "/icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "/icons/maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "/icons/icon.svg",
+   "sizes": "any",
+   "type": "image/svg+xml",
+   "purpose": "any"
+  }
+ ],
+ "id": "/",
+ "description": "Learn to speak English a little every day: roadmaps, grammar, vocabulary, speaking practice and quizzes.",
+ "orientation": "portrait",
+ "lang": "en",
+ "dir": "ltr",
+ "categories": [
+  "education"
+ ],
+ "shortcuts": [
+  {
+   "name": "Today's roadmap",
+   "short_name": "Roadmap",
+   "url": "/?tab=roadmap"
+  },
+  {
+   "name": "Speak a phrase",
+   "short_name": "Speak",
+   "url": "/?tab=speak:0"
+  },
+  {
+   "name": "Take a quiz",
+   "short_name": "Quiz",
+   "url": "/?tab=test:0"
+  }
+ ]
+}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import LevelSelect from "./LevelSelect";
 import { useApp } from "../lib/app";
 import { LEVELS, quizPool } from "../lib/levels";
+import { burst } from "../lib/confetti";
 
 const mk = (lv) => [...quizPool(lv)].sort(() => Math.random() - 0.5).slice(0, 8);
 
@@ -13,7 +14,7 @@ function Run({ lv }) {
   const [sel, setSel] = useState(null);
   const [sc, setSc] = useState(0);
   const done = i >= qs.length;
-  useEffect(() => { if (done && sc > 0) addXp(sc * 3); }, [done]);
+  useEffect(() => { if (done && sc > 0) { addXp(sc * 3); if (sc >= 6) burst(); } }, [done]);
 
   if (done) {
     return (

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AppProvider, useApp } from "../lib/app";
 import { LV } from "../lib/levels";
-import { toggleTheme, initTheme } from "../lib/theme";
+import { initTheme, initZoom } from "../lib/theme";
 import AuthModal from "../components/AuthModal";
 import LevelPicker from "../components/LevelPicker";
 import InfoModal from "../components/InfoModal";
@@ -17,7 +17,8 @@ const TABS = [["home", "🏠", "Home"], ["roadmap", "🗺", "Roadmap"], ["speak"
 const VIEW = { home: Home, roadmap: Roadmaps, speak: Practice, learn: Learn, grammar: Grammar, test: Test };
 
 function Legal() {
-  return <><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></>;
+  const mail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+  return <><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>{mail ? <> · <a href={"mailto:" + mail}>Feedback</a></> : null}</>;
 }
 
 function Shell() {
@@ -26,6 +27,10 @@ function Shell() {
   const [date, setDate] = useState("");
   useEffect(() => {
     initTheme();
+    const dl = new URLSearchParams(window.location.search).get("tab");
+    if (dl) go(dl);
+    initZoom();
+    window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); window.__installPrompt = e; window.dispatchEvent(new Event("ed-install")); });
     setDate(new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }));
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
   }, []);
@@ -55,6 +60,7 @@ function Shell() {
   const st = <button className="chip" onClick={openInfo} aria-label="What is a streak?">🔥 {s.streak} {s.streak === 1 ? "day" : "days"}</button>;
   return (
     <div className="app">
+      <a className="skip-link" href="#main">Skip to content</a>
       <aside className="side">
         <div className="logo" onClick={() => go("home")}>English<span>Daily</span></div>
         {TABS.map(([id, ic, l]) => (
@@ -76,18 +82,12 @@ function Shell() {
           <div className="logo" onClick={() => go("home")}>English<span>Daily</span></div>
           <div className="date">{date}</div>
           <div className="top">
-            <button className="ib" onClick={toggleTheme} title="Switch light or dark mode" aria-label="Switch light or dark mode">🌓</button>
             <button className="ib prof" onClick={openAuth} aria-label="Account and settings" title="Account and settings">
               {user ? <span className="av">{(user.email || "U")[0].toUpperCase()}</span> : "👤"}
             </button>
           </div>
         </header>
-        <div className="strip">
-          <button onClick={openInfo}><b>⭐ {s.xp}</b><span>XP points</span></button>
-          <button onClick={openInfo}><b>🔥 {s.streak}</b><span>day streak</span></button>
-          <button onClick={openLevel} style={{ "--lc": LV[level].c }} className="lv"><b>{LV[level].ic}</b><span>{level}</span></button>
-        </div>
-        <main key={nav.tab + ":" + nav.sub}><View go={go} sub={nav.sub} /></main>
+        <main id="main" tabIndex={-1} key={nav.tab + ":" + nav.sub}><View go={go} sub={nav.sub} /></main>
         <footer className="foot">
           <div className="logo">English<span>Daily</span></div>
           <p className="sm">English speaking practice for Hindi speakers. A little every day, no fear.</p>

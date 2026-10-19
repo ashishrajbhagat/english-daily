@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useApp } from "../lib/app";
 import { LV } from "../lib/levels";
 import { downloadCertificate } from "../lib/certificate";
+import { burst } from "../lib/confetti";
 import { ROADMAPS, STAGES, stageCount, curDay, dayTasks } from "../lib/roadmaps";
 
 const dayDone = (rp, r, d, lv) => dayTasks(r, d, lv, rp.round || 0).every((t) => rp.pd[d + "-" + t.k]);
@@ -16,7 +17,7 @@ export const progressOf = (s, r) => {
 };
 
 function Detail({ id, back, go }) {
-  const { s, addXp, toggleTask, nextRound, resetRoadmap, user } = useApp();
+  const { s, addXp, toggleTask, nextRound, resetRoadmap, user, access, openAuth } = useApp();
   const r = ROADMAPS.find((x) => x.id === id);
   const lv = s.level || "Beginner";
   const rp = s.rp[id];
@@ -42,7 +43,7 @@ function Detail({ id, back, go }) {
         <div className="card hero">
           <h2>🎉 Roadmap complete!</h2>
           <p>You finished every day. Your XP, lessons, badges and mistake notebook stay with you. Keep the habit going with Round {round + 2}: a fresh mix of phrases, words, topics and dialogues.</p>
-          <div className="row"><button className="b" onClick={() => nextRound(id)}>Start Round {round + 2}</button><button className="b" onClick={() => { const nm = window.prompt("Name for your certificate:", s.nick || (user && user.email ? user.email.split("@")[0] : "")); if (nm !== null) downloadCertificate({ name: nm.trim(), title: r.name, level: lv, date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) }); }}>🎓 Download certificate</button></div>
+          <div className="row"><button className="b" onClick={() => nextRound(id)}>Start Round {round + 2}</button><button className="b" onClick={() => { if (!access.certificate) { openAuth(1); return; } const nm = window.prompt("Name for your certificate:", s.nick || (user && user.email ? user.email.split("@")[0] : "")); if (nm !== null) downloadCertificate({ name: nm.trim(), title: r.name, level: lv, date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) }); }}>{access.certificate ? "🎓 Download certificate" : "🔒 Log in for your certificate"}</button></div>
         </div>
       )}
       {missed.length > 0 && (
@@ -57,7 +58,7 @@ function Detail({ id, back, go }) {
           const on = !!rp.pd[key];
           return (
             <div className={"card task" + (on ? " done" : "")} key={key}>
-              <button className="chk" aria-label="Mark as done" onClick={() => { if (!on) addXp(10); toggleTask(id, key); }}>{on ? "✓" : ""}</button>
+              <button className="chk" aria-label="Mark as done" onClick={() => { if (!on) { addXp(10); if (dayTasks(r, d, lv, round).every((x) => x.k === t.k || rp.pd[d + "-" + x.k])) burst(); } toggleTask(id, key); }}>{on ? "✓" : ""}</button>
               <div className="tb">
                 <b>{t.t}</b>
                 {t.d && <div className="sm">{t.d.join(" · ")}</div>}
@@ -91,7 +92,7 @@ function Detail({ id, back, go }) {
 }
 
 export default function Roadmaps({ go }) {
-  const { s, cloud, user, openAuth, setSkip, startRoadmap, openLevel } = useApp();
+  const { s, cloud, user, openAuth, setSkip, startRoadmap, openLevel, access } = useApp();
   const [open, setOpen] = useState(s.ar && s.rp[s.ar] ? s.ar : null);
   const [ask, setAsk] = useState(null);
   const lv = s.level || "Beginner";
@@ -108,6 +109,7 @@ export default function Roadmaps({ go }) {
       <div className="cols">
         {ROADMAPS.map((r) => {
           const p = progressOf(s, r);
+          const locked = !p && !access.roadmap(r.id);
           return (
             <div className="card rm" key={r.id}>
               {r.id === rec && <span className="tag">Recommended for you</span>}
@@ -115,7 +117,7 @@ export default function Roadmaps({ go }) {
               <p>{r.desc}</p>
               <p className="sm"><b>Best for:</b> {r.for}</p>
               {p && (<><div className="bar"><i style={{ width: (p.done / r.days) * 100 + "%" }} /></div><div className="sm">{p.done}/{r.days} days complete</div></>)}
-              <div className="row"><button className="b p" onClick={() => (p ? setOpen(r.id) : begin(r.id))}>{p ? "Continue" : "Start this roadmap"}</button></div>
+              <div className="row"><button className="b p" onClick={() => (p ? setOpen(r.id) : locked ? openAuth(1) : begin(r.id))}>{p ? "Continue" : locked ? "🔒 Log in to unlock" : "Start this roadmap"}</button></div>
             </div>
           );
         })}

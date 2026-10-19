@@ -14,12 +14,16 @@ export default function Privacy() {
       <p>If you choose to join the leaderboard, your nickname and XP are visible to other signed-in learners. You can leave at any time from Account and settings.</p>
       <h2>Microphone and speech</h2>
       <p>Speaking practice uses your browser&apos;s speech recognition. Depending on your browser (for example Chrome or Edge), your audio may be sent to the browser provider&apos;s servers for processing. English Daily does not record or store your audio.</p>
+      <h2>On-device AI (optional)</h2>
+      <p>If you switch on the on-device AI speech check (or your browser has no built-in speech recognition), a small AI model of about 40 MB is downloaded once from public servers (Hugging Face and jsDelivr) and runs inside your browser. Your voice stays on your device.</p>
+      <h2>AI features run by the site owner (optional)</h2>
+      <p>If the site owner has switched on AI features (AI Partner, AI coach, AI writing feedback), the text you type, or what the speech recognizer heard, is sent to the AI service provider chosen by the site owner to produce a reply. Do not enter private information.</p>
       <h2>Pronunciation (IPA) lookups</h2>
       <p>When you tap the IPA button, the words of that phrase are sent to the free dictionary service dictionaryapi.dev to fetch their pronunciation. No account details are sent. Results are cached in your browser.</p>
       <h2>Cookies and analytics</h2>
       <p>We do not use advertising cookies. If analytics is enabled, we use a privacy-friendly tool that does not track you across websites.</p>
       <h2>Your choices</h2>
-      <p>You can reset your progress or delete your account and cloud data from Account and settings. For any questions, contact: support@your-domain.example.</p>
+      <p>You can reset your progress or delete your account and cloud data from Account and settings. For any questions, contact: {process.env.NEXT_PUBLIC_CONTACT_EMAIL || "support@your-domain.example"}.</p>
     </div>
   );
 }

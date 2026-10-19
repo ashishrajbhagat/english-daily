@@ -10,7 +10,7 @@ export const metadata = {
   title: { default: title, template: "%s" },
   description,
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icons/icon.svg" },
+  icons: { icon: [{ url: "/favicon.ico" }, { url: "/icons/icon.svg", type: "image/svg+xml" }], apple: "/icons/apple-touch-icon.png" },
   openGraph: { title, description, type: "website", siteName: "English Daily" },
   twitter: { card: "summary_large_image", title, description },
 };

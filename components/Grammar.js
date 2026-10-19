@@ -7,6 +7,7 @@ import LevelSelect from "./LevelSelect";
 import { useApp } from "../lib/app";
 import { DATA } from "../lib/content";
 import { LEVELS, LV } from "../lib/levels";
+import { burst } from "../lib/confetti";
 
 
 function Lesson({ i, onBack }) {
@@ -18,7 +19,7 @@ function Lesson({ i, onBack }) {
   const ok = Object.keys(ans).filter((k) => ans[k] === qs[k][2]).length;
   const fin = n === qs.length;
   useEffect(() => {
-    if (fin && ok === qs.length && !s.gd[i]) { doneLesson(i); addXp(20); }
+    if (fin && ok === qs.length && !s.gd[i]) { doneLesson(i); addXp(20); burst(); }
   }, [fin]);
   return (
     <div className="narrow">

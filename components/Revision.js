@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useApp } from "../lib/app";
 
 export default function Revision() {
-  const { s, addXp, removeMistake } = useApp();
+  const { s, addXp, removeMistake, markMistake } = useApp();
   const list = s.mk || [];
   const [i, setI] = useState(0);
   const [sel, setSel] = useState(null);
@@ -17,7 +17,7 @@ export default function Revision() {
   }
   const q = list[i % list.length];
   const next = () => {
-    if (sel === q.a) { removeMistake(q.q); addXp(2); } else setI(i + 1);
+    if (sel === q.a) { if ((q.ok || 0) >= 1) { removeMistake(q.q); addXp(2); } else { markMistake(q.q, 1); setI(i + 1); } } else { markMistake(q.q, 0); setI(i + 1); }
     setSel(null);
   };
   return (
@@ -29,7 +29,8 @@ export default function Revision() {
       ))}
       {sel !== null && (
         <>
-          <div className="sm">{q.e || (sel === q.a ? "Right! This will now leave your notebook." : "The correct answer is in green. It will come back again.")}</div>
+          {q.e && <div className="sm">{q.e}</div>}
+          <div className="sm"><b>{sel === q.a ? ((q.ok || 0) >= 1 ? "Right again! Removed from your notebook." : "Right! Answer it correctly once more to remove it.") : "The correct answer is in green. It will come back again."}</b></div>
           <div className="row"><button className="b p" onClick={next}>Next</button></div>
         </>
       )}

@@ -2,16 +2,17 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../lib/app";
 import { supabase } from "../lib/supabase";
-import { getTheme, setTheme } from "../lib/theme";
+import { getTheme, setTheme, getZoom, setZoom } from "../lib/theme";
 import { LV } from "../lib/levels";
 import { enablePush, disablePush, updatePushTime, pushSupported } from "../lib/push";
 
 const Switch = ({ on, onChange, label }) => (
   <button type="button" role="switch" aria-checked={on} aria-label={label} className={"sw" + (on ? " on" : "")} onClick={onChange} />
 );
+const TITLES = ["Your progress", "Account", "Settings"];
 
 export default function AuthModal() {
-  const { authOpen, closeAuth, user, sync, setSkip, level, openLevel, s, resetAll, setRem, setLb, recovery, setRecovery } = useApp();
+  const { authOpen, closeAuth, user, sync, setSkip, level, openLevel, openInfo, s, resetAll, setRem, setLb, setGoal, setOnd, setShadow, recovery, setRecovery, cloud, access, authTab } = useApp();
   const [tab, setTab] = useState(0);
   const [mode, setMode] = useState("in");
   const [em, setEm] = useState("");
@@ -20,19 +21,38 @@ export default function AuthModal() {
   const [busy, setBusy] = useState(false);
   const [nick, setNick] = useState(s.nick || "");
   const [theme, setT] = useState("light");
+  const [zoom, setZ] = useState("1");
   const [adm, setAdm] = useState(false);
   const [bg, setBg] = useState(false);
+  const [canInstall, setCan] = useState(false);
+
+  useEffect(() => {
+    if (!authOpen) return;
+    setT(getTheme()); setZ(getZoom()); setMsg(""); setTab(recovery ? 1 : authTab); setCan(!!window.__installPrompt);
+    try { setBg(localStorage.getItem("ed-bg") === "1"); } catch (e) {}
+  }, [authOpen]);
+  useEffect(() => {
+    const h = () => setCan(true);
+    window.addEventListener("ed-install", h);
+    return () => window.removeEventListener("ed-install", h);
+  }, []);
   useEffect(() => {
     if (!supabase || !user) { setAdm(false); return; }
     supabase.from("admins").select("email").maybeSingle().then(({ data }) => setAdm(!!data));
   }, [user]);
-  useEffect(() => { try { setBg(localStorage.getItem("ed-bg") === "1"); } catch (e) {} }, [authOpen]);
-  useEffect(() => { if (authOpen) { setT(getTheme()); setMsg(""); } }, [authOpen]);
   if (!authOpen) return null;
 
   const rem = s.rem || { on: false, time: "19:00" };
   const m = recovery ? "recovery" : mode;
   const initial = (user && user.email ? user.email[0] : "U").toUpperCase();
+  const goal = s.goal || 30;
+  const tx = s.day === new Date().toDateString() ? (s.txp || 0) : 0;
+  const hist = s.hist || {};
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() - (6 - i) * 864e5);
+    return { k: d.toLocaleDateString("en-CA"), l: d.toLocaleDateString("en-GB", { weekday: "short" }).slice(0, 3) };
+  });
+  const max = Math.max(goal, ...days.map((x) => hist[x.k] || 0));
 
   const run = async (e) => {
     e.preventDefault(); setBusy(true); setMsg("");
@@ -70,7 +90,6 @@ export default function AuthModal() {
     }
     setRem({ ...rem, on: !rem.on });
   };
-
   const toggleBg = async () => {
     setMsg("");
     try {
@@ -78,7 +97,13 @@ export default function AuthModal() {
       else { await enablePush(user, rem.time); localStorage.setItem("ed-bg", "1"); setBg(true); setMsg("Background reminder is on."); }
     } catch (e) { setMsg(e.message || "Could not change the background reminder."); }
   };
-
+  const install = async () => {
+    const p = window.__installPrompt;
+    if (!p) return;
+    p.prompt();
+    try { await p.userChoice; } catch (e) {}
+    window.__installPrompt = null; setCan(false);
+  };
   const saveLb = async (on) => {
     const n = nick.trim();
     if (on && (n.length < 2 || n.length > 20)) { setMsg("Choose a nickname of 2 to 20 characters."); return; }
@@ -87,19 +112,65 @@ export default function AuthModal() {
     setMsg(on ? "Saved. You are on the leaderboard (it updates when your progress syncs)." : "You left the leaderboard.");
   };
 
+  const share = async () => {
+    const text = "I'm on a " + s.streak + "-day streak with " + s.xp + " XP on English Daily. Learn to speak English a little every day!";
+    const url = window.location.origin;
+    try {
+      if (navigator.share) await navigator.share({ title: "English Daily", text, url });
+      else { await navigator.clipboard.writeText(text + " " + url); setMsg("Copied to your clipboard."); }
+    } catch (e) {}
+  };
+
   return (
     <div className="modal-bg" onClick={closeAuth}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-label="Account and settings" onClick={(e) => e.stopPropagation()}>
+      <div className="sheet" role="dialog" aria-modal="true" aria-label="Profile" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-h">
-          <div className="en">{tab === 0 ? (user ? "Your account" : recovery ? "New password" : "Welcome") : "Settings"}</div>
+          <div className="en">{tab === 1 && !user && !recovery ? "Welcome" : tab === 1 && recovery ? "New password" : TITLES[tab]}</div>
           <button className="ib sm-ib" onClick={closeAuth} aria-label="Close">✕</button>
         </div>
         <div className="tabs2" role="tablist">
-          <button role="tab" aria-selected={tab === 0} className={tab === 0 ? "on" : ""} onClick={() => setTab(0)}>👤 Account</button>
-          <button role="tab" aria-selected={tab === 1} className={tab === 1 ? "on" : ""} onClick={() => setTab(1)}>⚙️ Settings</button>
+          {[["📊", "Stats"], ["👤", "Account"], ["⚙️", "Settings"]].map(([ic, l], i) => (
+            <button key={l} role="tab" aria-selected={tab === i} className={tab === i ? "on" : ""} onClick={() => setTab(i)}><b>{ic}</b>{l}</button>
+          ))}
         </div>
         <div className="sheet-b">
           {tab === 0 && (
+            <>
+              <div className="stats3">
+                <button className="st t2" onClick={openInfo}><b>⭐ {s.xp}</b><span>XP points</span></button>
+                <button className="st t1" onClick={openInfo}><b>🔥 {s.streak}</b><span>day streak</span></button>
+                <button className="st t3 lv" style={{ "--lc": LV[level].c }} onClick={() => { closeAuth(); openLevel(); }}><b>{LV[level].ic}</b><span>{level}</span></button>
+              </div>
+              <p className="sm">Tap XP or streak to see how they work. Tap your level to change it. ❄️ Streak freezes: {s.fz || 0}</p>
+              <button className="b full" onClick={share}>📤 Share my progress</button>
+              {access.stats ? (
+                <>
+              <h3 className="sec-t">Daily goal</h3>
+              <div className="rowb"><b>🎯 {Math.min(tx, goal)} / {goal} XP today</b><span className="sm">{tx >= goal ? "Reached! 🎉" : (goal - tx) + " to go"}</span></div>
+              <div className="bar"><i style={{ width: Math.min(100, (tx / goal) * 100) + "%" }} /></div>
+              <h3 className="sec-t">This week</h3>
+              <div className="wk">
+                {days.map((x) => { const v = hist[x.k] || 0; return <div key={x.k}><span className="sm">{v || ""}</span><i style={{ height: Math.max(4, (v / max) * 80) + "px" }} /><span className="sm">{x.l}</span></div>; })}
+              </div>
+                </>
+              ) : (
+                <div className="notice" style={{ marginTop: 14 }}>
+                  <b>🔒 Daily goal and weekly chart</b>
+                  <div className="sm">Log in to unlock them. Your progress so far is kept and moves to your account.</div>
+                  <button className="b p full" style={{ marginTop: 10 }} onClick={() => setTab(1)}>Log in or sign up</button>
+                </div>
+              )}
+              {cloud && !user && (
+                <div className="notice">
+                  <b>Save your progress</b>
+                  <div className="sm">Log in to keep your XP, streak and roadmaps on every device.</div>
+                  <button className="b p full" style={{ marginTop: 10 }} onClick={() => setTab(1)}>Log in or sign up</button>
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 1 && (
             !supabase ? (
               <>
                 <div className="benefits"><div>☁️ <span>Cloud login is not set up yet.</span></div></div>
@@ -156,18 +227,41 @@ export default function AuthModal() {
               </>
             )
           )}
-          {tab === 1 && (
+
+          {tab === 2 && (
             <>
               <div className="srow">
-                <div><b>Appearance</b><small>Light or dark screen</small></div>
+                <div><b>🎨 Appearance</b><small>Light or dark screen</small></div>
                 <div className="seg2">
                   <button className={theme === "light" ? "on" : ""} onClick={() => { setTheme("light"); setT("light"); }}>☀️ Light</button>
                   <button className={theme === "dark" ? "on" : ""} onClick={() => { setTheme("dark"); setT("dark"); }}>🌙 Dark</button>
                 </div>
               </div>
               <div className="srow">
+                <div><b>🔠 Text size</b><small>Make everything larger</small></div>
+                <div className="seg3">
+                  {[["1", "A"], ["1.12", "A+"], ["1.25", "A++"]].map(([z, l]) => (
+                    <button key={z} className={zoom === z ? "on" : ""} onClick={() => { setZoom(z); setZ(z); }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="srow">
+                <div><b>🔁 Shadowing mode</b><small>After you tap Listen on a phrase, the microphone starts so you can repeat it right away.</small></div>
+                <Switch on={!!s.shadow} onChange={() => setShadow(!s.shadow)} label="Shadowing mode" />
+              </div>
+              <div className="srow">
+                <div><b>🧠 On-device AI speech check</b><small>Free. Works in every browser and offline after a one-time download of about 40 MB. Slower than the normal check.</small></div>
+                <Switch on={!!s.ond} onChange={() => setOnd(!s.ond)} label="On-device AI speech check" />
+              </div>
+              <div className="srow">
                 <div><b>{LV[level].ic} Level: {level}</b><small>Decides the content you see</small></div>
                 <button className="b" onClick={() => { closeAuth(); openLevel(); }}>Change</button>
+              </div>
+              <div className="srow">
+                <div><b>🎯 Daily goal</b><small>XP to earn each day</small></div>
+                <select className="seln" value={goal} onChange={(e) => setGoal(+e.target.value)} aria-label="Daily goal in XP">
+                  {[20, 30, 50, 100].map((g) => <option key={g} value={g}>{g} XP</option>)}
+                </select>
               </div>
               <div className="srow">
                 <div><b>⏰ Daily reminder</b><small>Works while English Daily is open in your browser</small></div>
@@ -180,8 +274,12 @@ export default function AuthModal() {
               {(rem.on || bg) && (
                 <div className="srow"><div><b>Reminder time</b></div><input type="time" className="inp tm" value={rem.time} onChange={(e) => { setRem({ ...rem, time: e.target.value }); if (bg) updatePushTime(e.target.value); }} aria-label="Reminder time" /></div>
               )}
+              <div className="srow">
+                <div><b>📲 Install app</b><small>{canInstall ? "Opens like a normal app, even offline." : "Use your browser menu: Add to Home Screen (iPhone: Share, then Add to Home Screen)."}</small></div>
+                {canInstall ? <button className="b p" onClick={install}>Install</button> : null}
+              </div>
               <div className="srow stack">
-                <div><b>Your data</b><small>Clears XP, streak, lessons and roadmaps on this device.</small></div>
+                <div><b>🗂️ Your data</b><small>Clears XP, streak, lessons and roadmaps on this device.</small></div>
                 <button className="b dng full" onClick={() => { if (window.confirm("Reset all your progress on this device? XP, streak, lessons and roadmaps will be cleared.")) { resetAll(); closeAuth(); } }}>Reset my progress</button>
               </div>
               <p className="sm" style={{ marginTop: 14 }}><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></p>

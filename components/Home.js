@@ -23,7 +23,7 @@ function Ring({ pct }) {
 }
 
 export default function Home({ go }) {
-  const { s, rate, level, cloud, user, openAuth, openInfo } = useApp();
+  const { s, rate, level, cloud, user, openAuth, openInfo, access } = useApp();
   const [w, setW] = useState(null);
   useEffect(() => { const v = pools(level).vo; setW(v[Math.floor(Date.now() / 864e5) % v.length]); }, [level]);
   const r = ROADMAPS.find((x) => x.id === s.ar);
@@ -33,6 +33,8 @@ export default function Home({ go }) {
   const n = tasks.filter((t) => rp.pd[d + "-" + t.k]).length;
   const all = rp && n === tasks.length;
   const msg = !rp ? "Hi! I'm Hoot. I will guide you step by step." : all ? "Great work today!" : s.streak > 1 ? s.streak + " days in a row. Keep it up!" : "Small steps every day make you fluent.";
+  const goal = s.goal || 30;
+  const tx = s.day === new Date().toDateString() ? (s.txp || 0) : 0;
   return (
     <>
       <section className="hero2">
@@ -44,6 +46,19 @@ export default function Home({ go }) {
         </div>
         {rp && <Ring pct={Math.round((n / tasks.length) * 100)} />}
       </section>
+      {access.goal ? (
+      <div className="card">
+        <div className="rowb"><b>🎯 Daily goal</b><span className="sm">{Math.min(tx, goal)} / {goal} XP today</span></div>
+        <div className="bar"><i style={{ width: Math.min(100, (tx / goal) * 100) + "%" }} /></div>
+        <div className="sm" style={{ marginTop: 8 }}>{tx >= goal ? "Goal reached! 🎉 Keep going for a bonus." : "Earn XP by finishing tasks, speaking phrases and quizzes."} <button className="lnk" onClick={openInfo}>What is XP?</button></div>
+      </div>
+      ) : (
+        <div className="card">
+          <div className="rowb"><b>🎯 Daily goal</b><span className="sm">🔒 Locked</span></div>
+          <div className="sm">Log in to turn on your daily goal and weekly chart. Your progress so far is kept and moves to your account.</div>
+          <div className="row"><button className="b p" onClick={() => openAuth(1)}>Log in or sign up</button></div>
+        </div>
+      )}
       {s.xp < 60 && (
         <div className="card">
           <div className="en">How it works</div>
@@ -67,7 +82,7 @@ export default function Home({ go }) {
       )}
       {cloud && !user && !s.sk && (
         <div className="card nudge">☁️ <b>Want to save your progress?</b> Log in to continue on any device.
-          <div className="row"><button className="b p" onClick={openAuth}>Login / Sign up</button></div>
+          <div className="row"><button className="b p" onClick={() => openAuth(1)}>Login / Sign up</button></div>
         </div>
       )}
       <Badges s={s} />

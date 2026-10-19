@@ -58,3 +58,23 @@ Everything works without any paid AI. Pronunciation coaching is rule-based (`lib
 - **Admin panel** at `/admin`: add phrases, words, phrasal verbs and quiz questions (with a level) without touching code. Run the new SQL in `supabase/schema.sql`, then make yourself an admin: `insert into public.admins (email) values ('you@example.com');`. An "Admin panel" button then appears in Account and settings.
 - **Background reminders** (work when the app is closed): generate VAPID keys (`npx web-push generate-vapid-keys`), set the VAPID, `CRON_SECRET` and `SUPABASE_SERVICE_ROLE_KEY` variables, and add GitHub secrets `SITE_URL` and `CRON_SECRET` so `.github/workflows/reminders.yml` can call `/api/push/send` every 15 minutes (free). Works on the deployed HTTPS site; iPhone needs the app added to the Home Screen.
 - **Record and compare**: record your own voice (up to 12 seconds) on any phrase and play it back next to the model voice.
+
+## v7 additions
+- On phones and tablets the XP, streak and level strip is no longer shown on every page. It lives in the profile sheet (profile icon, "Stats" tab), together with the daily goal and a 7-day activity chart. On desktop the sidebar still shows them.
+- Daily XP goal (20, 30, 50 or 100), saved phrases (tap ☆, see them in Speak > Saved), confetti and a toast when you finish a day, a lesson, a good quiz or the daily goal.
+- Mistake notebook: an item leaves after two correct answers in a row.
+- Settings: text size (A, A+, A++), install app button, daily goal.
+- Production polish: friendly 404 and error pages, security headers (`next.config.js`).
+
+## v8: free AI (all optional)
+1. **On-device AI speech check** (no server, no key, no cost): a small Whisper model runs in the browser. It is used automatically in browsers without speech recognition (Firefox, many iPhones) and can be switched on in Settings. First use downloads about 40 MB, then it is cached. The model library is loaded from jsDelivr (version set in `lib/whisper.js`).
+2. **AI Partner, AI coach and AI writing feedback** use any OpenAI-compatible provider. Many have free tiers without a credit card (for example Groq, OpenRouter, Google AI Studio). Set `AI_BASE_URL`, `AI_API_KEY` and `AI_MODEL` (see `.env.example`). With no key, these features simply say they are not switched on. Free tiers have rate limits and some providers may use free-tier data to improve their products, so do not use them for private content. `lib/ai.js` also limits each visitor to 20 AI requests per 10 minutes (best effort).
+3. **Android app** (free): deploy the site, then use PWABuilder (pwabuilder.com) to package it for the Google Play Store.
+
+## v9 additions
+- PWA ready for install and the Play Store: PNG icons (192, 512, maskable, Apple touch), full manifest with app shortcuts (deep links such as `/?tab=speak:0`), offline page and a stronger service worker. Replace the simple generated icons in `public/icons` with your own logo any time.
+- Play Store (free to prepare): deploy, open pwabuilder.com, enter your URL and download the Android package. A one-time Google Play developer registration fee applies when you publish.
+- Shadowing mode, phrase search, share-my-progress button, skip-to-content link, optional feedback email, more content (24 words, 16 quiz questions, 4 reading passages, 4 writing tasks, 4 tongue twisters).
+
+## v10: guest limits
+When cloud login is set up, visitors who are not logged in get limited access (edit `lib/access.js`): they can start only the Quick Start roadmap, see only basic stats (XP, streak, level), and cannot use the daily goal, weekly chart, certificate or AI features (AI is also enforced on the server). Everything is unlocked if login is not set up. Their progress is kept and moves to their account when they log in. 17 more grammar lessons (63 in total). The theme switch now lives only in the profile Settings tab.
