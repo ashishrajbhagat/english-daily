@@ -92,7 +92,7 @@ function Detail({ id, back, go }) {
 }
 
 export default function Roadmaps({ go }) {
-  const { s, cloud, user, openAuth, setSkip, startRoadmap, openLevel, access } = useApp();
+  const { s, cloud, user, openAuth, setSkip, startRoadmap, openLevel, access, t } = useApp();
   const [open, setOpen] = useState(s.ar && s.rp[s.ar] ? s.ar : null);
   const [ask, setAsk] = useState(null);
   const lv = s.level || "Beginner";
@@ -104,7 +104,7 @@ export default function Roadmaps({ go }) {
   if (open) return <Detail id={open} back={() => setOpen(null)} go={go} />;
   return (
     <>
-      <div className="phead"><div><h2>Roadmaps</h2></div></div>
+      <div className="phead"><div><h2>{t("Roadmaps")}</h2></div></div>
       <p className="sm">A roadmap is a day-by-day plan. Pick one, finish the small daily tasks and you will see steady progress. Content matches your level: <b>{LV[lv].ic} {lv}</b> · <button className="lnk" onClick={openLevel}>change level</button></p>
       <div className="cols">
         {ROADMAPS.map((r) => {
@@ -112,12 +112,12 @@ export default function Roadmaps({ go }) {
           const locked = !p && !access.roadmap(r.id);
           return (
             <div className="card rm" key={r.id}>
-              {r.id === rec && <span className="tag">Recommended for you</span>}
+              {r.id === rec && <span className="tag">{t("Recommended for you")}</span>}
               <div className="rmh"><span className="rmi">{r.emoji}</span><div><div className="en">{r.name}</div><div className="sm">{r.days} days · {r.per} tasks a day · {r.time}</div></div></div>
               <p>{r.desc}</p>
               <p className="sm"><b>Best for:</b> {r.for}</p>
               {p && (<><div className="bar"><i style={{ width: (p.done / r.days) * 100 + "%" }} /></div><div className="sm">{p.done}/{r.days} days complete</div></>)}
-              <div className="row"><button className="b p" onClick={() => (p ? setOpen(r.id) : locked ? openAuth(1) : begin(r.id))}>{p ? "Continue" : locked ? "🔒 Log in to unlock" : "Start this roadmap"}</button></div>
+              <div className="row"><button className="b p" onClick={() => (p ? setOpen(r.id) : locked ? openAuth(1) : begin(r.id))}>{p ? t("Continue") : locked ? t("🔒 Log in to unlock") : t("Start this roadmap")}</button></div>
             </div>
           );
         })}

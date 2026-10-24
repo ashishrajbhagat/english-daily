@@ -11,7 +11,7 @@ import Sounds from "./Sounds";
 import Numbers from "./Numbers";
 import { useApp } from "../lib/app";
 import { DATA } from "../lib/content";
-import { LEVELS, pool, phLevel, dlLevel, twLevel } from "../lib/levels";
+import { LEVELS, pool, phLevel, dlOf, twLevel } from "../lib/levels";
 
 export default function Practice({ sub }) {
   const { rate, setRate, level, s } = useApp();
@@ -36,7 +36,7 @@ export default function Practice({ sub }) {
           </div>
         </>
       )}
-      {m === 1 && pool(DATA.DL, (d) => dlLevel(d.t), lv).map((d) => (
+      {m === 1 && pool(DATA.DL, dlOf, lv).map((d) => (
         <div key={d.t}>
           <h3 className="sec-t">🎭 {d.t}</h3>
           <div className="cols">

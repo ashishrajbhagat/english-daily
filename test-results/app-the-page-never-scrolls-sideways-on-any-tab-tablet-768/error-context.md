@@ -1,0 +1,178 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: app.spec.js >> the page never scrolls sideways on any tab
+- Location: tests\app.spec.js:13:1
+
+# Error details
+
+```
+Test timeout of 40000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to content" [ref=e3] [cursor=pointer]:
+      - /url: "#main"
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e6] [cursor=pointer]: EnglishDaily
+        - button "Account and settings" [ref=e8] [cursor=pointer]: 👤
+      - main [ref=e9]:
+        - generic [ref=e11]:
+          - generic [ref=e12]:
+            - generic [ref=e13]: 🦉
+            - paragraph [ref=e14]: Hi! I'm Hoot. I will guide you step by step.
+          - generic [ref=e15]: Get started
+          - heading "Pick a roadmap and start speaking" [level=2] [ref=e16]
+          - button "Choose a roadmap →" [ref=e17] [cursor=pointer]
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: 🎯 Daily goal
+            - generic [ref=e21]: 🔒 Locked
+          - generic [ref=e22]: Log in to turn on your daily goal and weekly chart. Your progress so far is kept and moves to your account.
+          - button "Log in or sign up" [ref=e24] [cursor=pointer]
+        - generic [ref=e25]:
+          - generic [ref=e26]: How it works
+          - generic [ref=e27]:
+            - generic [ref=e28]: "1"
+            - generic [ref=e29]:
+              - text: Choose your level and a roadmap.
+              - generic [ref=e30]: Each day has a few small tasks.
+          - generic [ref=e31]:
+            - generic [ref=e32]: "2"
+            - generic [ref=e33]:
+              - text: Finish tasks to earn XP ⭐ and grow your streak 🔥.
+              - button "What are XP and streaks?" [ref=e35] [cursor=pointer]
+          - generic [ref=e36]:
+            - generic [ref=e37]: "3"
+            - generic [ref=e38]:
+              - text: Fix your mistakes in the notebook.
+              - generic [ref=e39]: Wrong answers and words you want to review are saved there.
+        - heading "Quick practice" [level=3] [ref=e40]
+        - generic [ref=e41]:
+          - button "🎤 Speak a phrase Practise out loud" [ref=e42] [cursor=pointer]:
+            - generic [ref=e43]: 🎤
+            - text: Speak a phrase
+            - generic [ref=e44]: Practise out loud
+          - button "🗣 Free talk 60 seconds" [ref=e45] [cursor=pointer]:
+            - generic [ref=e46]: 🗣
+            - text: Free talk
+            - generic [ref=e47]: 60 seconds
+          - button "🎧 Dictation Listen and type" [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: 🎧
+            - text: Dictation
+            - generic [ref=e50]: Listen and type
+          - button "✅ Quick quiz 8 questions" [ref=e51] [cursor=pointer]:
+            - generic [ref=e52]: ✅
+            - text: Quick quiz
+            - generic [ref=e53]: 8 questions
+        - heading "Word of the day" [level=3] [ref=e54]
+        - generic [ref=e55]:
+          - generic [ref=e56]: Choose
+          - generic [ref=e57]: चुनना
+          - generic [ref=e58]: Choose a colour you like.
+          - button "🔊 Listen" [ref=e60] [cursor=pointer]
+        - generic [ref=e61]:
+          - text: ☁️ Want to save your progress? Log in to continue on any device.
+          - button "Login / Sign up" [ref=e63] [cursor=pointer]
+        - heading "Your badges · 0/10" [level=3] [ref=e64]
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e67]: 🌱
+            - text: 100 XP
+          - generic [ref=e68]:
+            - generic [ref=e69]: 🚀
+            - text: 500 XP
+          - generic [ref=e70]:
+            - generic [ref=e71]: 💎
+            - text: 1000 XP
+          - generic [ref=e72]:
+            - generic [ref=e73]: 🔥
+            - text: 3-day streak
+          - generic [ref=e74]:
+            - generic [ref=e75]: 🏆
+            - text: 7-day streak
+          - generic [ref=e76]:
+            - generic [ref=e77]: 📘
+            - text: 5 lessons
+          - generic [ref=e78]:
+            - generic [ref=e79]: 🎓
+            - text: 20 lessons
+          - generic [ref=e80]:
+            - generic [ref=e81]: ⭐
+            - text: 25 tasks
+          - generic [ref=e82]:
+            - generic [ref=e83]: 🏅
+            - text: 100 tasks
+          - generic [ref=e84]:
+            - generic [ref=e85]: 🎯
+            - text: Roadmap finisher
+      - contentinfo [ref=e86]:
+        - generic [ref=e87] [cursor=pointer]: EnglishDaily
+        - paragraph [ref=e88]: English speaking practice for Hindi speakers. A little every day, no fear.
+        - paragraph [ref=e89]:
+          - link "Privacy" [ref=e90] [cursor=pointer]:
+            - /url: /privacy
+          - text: ·
+          - link "Terms" [ref=e91] [cursor=pointer]:
+            - /url: /terms
+          - text: ·
+          - link "Feedback" [ref=e92] [cursor=pointer]:
+            - /url: mailto:ashishrajbhagat@gmail.com
+        - paragraph [ref=e93]: © 2026 English Daily · Progress saved on this device
+    - navigation [ref=e94]:
+      - button "🏠 Home" [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]: 🏠
+        - text: Home
+      - button "🗺 Roadmap" [ref=e97] [cursor=pointer]:
+        - generic [ref=e98]: 🗺
+        - text: Roadmap
+      - button "🎤 Speak" [ref=e99] [cursor=pointer]:
+        - generic [ref=e100]: 🎤
+        - text: Speak
+      - button "📚 Learn" [ref=e101] [cursor=pointer]:
+        - generic [ref=e102]: 📚
+        - text: Learn
+      - button "📘 Grammar" [ref=e103] [cursor=pointer]:
+        - generic [ref=e104]: 📘
+        - text: Grammar
+      - button "✅ Quiz" [ref=e105] [cursor=pointer]:
+        - generic [ref=e106]: ✅
+        - text: Quiz
+    - generic [active] [ref=e108]:
+      - generic [ref=e109]: 🎯 What is your English level?
+      - paragraph [ref=e110]: This decides which phrases, words, grammar and quizzes you see. You can change it anytime.
+      - button "🌱 Beginner I know basic words but find it hard to build sentences." [ref=e111] [cursor=pointer]:
+        - generic [ref=e112]: 🌱
+        - generic [ref=e113]:
+          - text: Beginner
+          - generic [ref=e114]: I know basic words but find it hard to build sentences.
+      - button "🚀 Intermediate I can chat about simple topics but make mistakes." [ref=e115] [cursor=pointer]:
+        - generic [ref=e116]: 🚀
+        - generic [ref=e117]:
+          - text: Intermediate
+          - generic [ref=e118]: I can chat about simple topics but make mistakes.
+      - button "🔥 Advanced I speak fairly well and want to sound more natural." [ref=e119] [cursor=pointer]:
+        - generic [ref=e120]: 🔥
+        - generic [ref=e121]:
+          - text: Advanced
+          - generic [ref=e122]: I speak fairly well and want to sound more natural.
+      - button "👑 Expert I am fluent and want polish, nuance and formal English." [ref=e123] [cursor=pointer]:
+        - generic [ref=e124]: 👑
+        - generic [ref=e125]:
+          - text: Expert
+          - generic [ref=e126]: I am fluent and want polish, nuance and formal English.
+      - generic [ref=e127]:
+        - button "Not sure? Take a 2-minute test" [ref=e128] [cursor=pointer]
+        - button "Skip for now" [ref=e129] [cursor=pointer]
+  - alert [ref=e130]
+```

@@ -23,7 +23,7 @@ function Ring({ pct }) {
 }
 
 export default function Home({ go }) {
-  const { s, rate, level, cloud, user, openAuth, openInfo, access } = useApp();
+  const { s, rate, level, cloud, user, openAuth, openInfo, access, t } = useApp();
   const [w, setW] = useState(null);
   useEffect(() => { const v = pools(level).vo; setW(v[Math.floor(Date.now() / 864e5) % v.length]); }, [level]);
   const r = ROADMAPS.find((x) => x.id === s.ar);
@@ -39,10 +39,10 @@ export default function Home({ go }) {
     <>
       <section className="hero2">
         <div className="hero-t">
-          <div className="mascot"><span>🦉</span><p>{msg}</p></div>
-          <div className="kick">{rp ? r.name + " · Day " + d + " of " + r.days : "Get started"}</div>
-          <h2>{rp ? (all ? "Today is complete! 🎉" : "Today's tasks are waiting") : "Pick a roadmap and start speaking"}</h2>
-          <button className="b" onClick={() => go("roadmap")}>{rp ? (all ? "Review today" : "Continue Day " + d) : "Choose a roadmap"} →</button>
+          <div className="mascot"><span>🦉</span><p>{t(msg)}</p></div>
+          <div className="kick">{rp ? r.name + " · Day " + d + " of " + r.days : t("Get started")}</div>
+          <h2>{rp ? (all ? t("Today is complete! 🎉") : t("Today's tasks are waiting")) : t("Pick a roadmap and start speaking")}</h2>
+          <button className="b" onClick={() => go("roadmap")}>{rp ? (all ? t("Review today") : t("Continue Day ") + d) : t("Choose a roadmap")} →</button>
         </div>
         {rp && <Ring pct={Math.round((n / tasks.length) * 100)} />}
       </section>
@@ -67,13 +67,13 @@ export default function Home({ go }) {
           <div className="step"><i>3</i><div><b>Fix your mistakes in the notebook.</b><div className="sm">Wrong answers and words you want to review are saved there.</div></div></div>
         </div>
       )}
-      <h3 className="sec-t">Quick practice</h3>
+      <h3 className="sec-t">{t("Quick practice")}</h3>
       <div className="quick">
-        {QUICK.map(([ic, t, sub, to]) => <button key={to} className="q" onClick={() => go(to)}><span>{ic}</span>{t}<small>{sub}</small></button>)}
+        {QUICK.map(([ic, tt, sb, to]) => <button key={to} className="q" onClick={() => go(to)}><span>{ic}</span>{t(tt)}<small>{t(sb)}</small></button>)}
       </div>
       {w && (
         <>
-          <h3 className="sec-t">Word of the day</h3>
+          <h3 className="sec-t">{t("Word of the day")}</h3>
           <div className="card">
             <div className="en">{w[0]}</div><div className="hi">{w[1]}</div><div className="sm">{w[2]}</div>
             <div className="row"><button className="b" onClick={() => say(w[0] + ". " + w[2], rate)}>🔊 Listen</button></div>

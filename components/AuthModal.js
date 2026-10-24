@@ -12,7 +12,7 @@ const Switch = ({ on, onChange, label }) => (
 const TITLES = ["Your progress", "Account", "Settings"];
 
 export default function AuthModal() {
-  const { authOpen, closeAuth, user, sync, setSkip, level, openLevel, openInfo, s, resetAll, setRem, setLb, setGoal, setOnd, setShadow, recovery, setRecovery, cloud, access, authTab } = useApp();
+  const { authOpen, closeAuth, user, sync, setSkip, level, openLevel, openInfo, s, resetAll, setRem, setLb, setGoal, setOnd, setShadow, recovery, setRecovery, cloud, access, authTab, setLang } = useApp();
   const [tab, setTab] = useState(0);
   const [mode, setMode] = useState("in");
   const [em, setEm] = useState("");
@@ -112,6 +112,10 @@ export default function AuthModal() {
     setMsg(on ? "Saved. You are on the leaderboard (it updates when your progress syncs)." : "You left the leaderboard.");
   };
 
+  const google = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
+    if (error) setMsg(error.message);
+  };
   const share = async () => {
     const text = "I'm on a " + s.streak + "-day streak with " + s.xp + " XP on English Daily. Learn to speak English a little every day!";
     const url = window.location.origin;
@@ -209,6 +213,12 @@ export default function AuthModal() {
                     <div>🏆 <span>Join the leaderboard (optional)</span></div>
                   </div>
                 )}
+                {process.env.NEXT_PUBLIC_GOOGLE_LOGIN === "1" && !recovery && (
+                  <>
+                    <button className="b full" type="button" onClick={google}>🔐 Continue with Google</button>
+                    <div className="orline"><span>or use email</span></div>
+                  </>
+                )}
                 {m !== "forgot" && !recovery && (
                   <div className="mode2">
                     <button className={m === "in" ? "on" : ""} onClick={() => setMode("in")}>Sign in</button>
@@ -235,6 +245,13 @@ export default function AuthModal() {
                 <div className="seg2">
                   <button className={theme === "light" ? "on" : ""} onClick={() => { setTheme("light"); setT("light"); }}>☀️ Light</button>
                   <button className={theme === "dark" ? "on" : ""} onClick={() => { setTheme("dark"); setT("dark"); }}>🌙 Dark</button>
+                </div>
+              </div>
+              <div className="srow">
+                <div><b>🌐 Language</b><small>Hindi changes the menus, headings and main buttons.</small></div>
+                <div className="seg2">
+                  <button className={(s.lang || "en") === "en" ? "on" : ""} onClick={() => setLang("en")}>English</button>
+                  <button className={s.lang === "hi" ? "on" : ""} onClick={() => setLang("hi")}>हिन्दी</button>
                 </div>
               </div>
               <div className="srow">

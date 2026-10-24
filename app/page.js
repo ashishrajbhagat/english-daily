@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { AppProvider, useApp } from "../lib/app";
 import { LV } from "../lib/levels";
 import { initTheme, initZoom } from "../lib/theme";
+import { startAutoTranslate } from "../lib/autotranslate";
 import AuthModal from "../components/AuthModal";
 import LevelPicker from "../components/LevelPicker";
 import InfoModal from "../components/InfoModal";
@@ -22,7 +23,7 @@ function Legal() {
 }
 
 function Shell() {
-  const { s, user, level, ready, openAuth, openLevel, openInfo } = useApp();
+  const { s, user, level, ready, openAuth, openLevel, openInfo, t, authOpen, levelOpen, infoOpen, closeAuth, closeLevel, closeInfo } = useApp();
   const [nav, setNav] = useState({ tab: "home", sub: 0 });
   const [date, setDate] = useState("");
   useEffect(() => {
@@ -54,6 +55,23 @@ function Shell() {
     }, 20000);
     return () => clearInterval(id);
   }, [s.rem, s.day]);
+  // Hindi mode: translate the interface text
+  useEffect(() => {
+    document.documentElement.lang = s.lang === "hi" ? "hi" : "en";
+    if (s.lang !== "hi") return;
+    return startAutoTranslate();
+  }, [s.lang]);
+  // dialogs: Escape closes the top one, focus moves into it and returns afterwards
+  useEffect(() => {
+    if (!(authOpen || levelOpen || infoOpen)) return;
+    const prev = document.activeElement;
+    const els = document.querySelectorAll(".sheet, .modal");
+    const el = els[els.length - 1];
+    if (el) { el.setAttribute("tabindex", "-1"); el.focus(); }
+    const onKey = (e) => { if (e.key === "Escape") { if (infoOpen) closeInfo(); else if (levelOpen) closeLevel(); else closeAuth(); } };
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); if (prev && prev.focus) prev.focus(); };
+  }, [authOpen, levelOpen, infoOpen]);
   const go = (id) => { const [t, sb] = id.split(":"); setNav({ tab: t, sub: +sb || 0 }); };
   const View = VIEW[nav.tab];
   const xp = <button className="chip" onClick={openInfo} aria-label="What is XP?">⭐ {s.xp} XP</button>;
@@ -64,7 +82,7 @@ function Shell() {
       <aside className="side">
         <div className="logo" onClick={() => go("home")}>English<span>Daily</span></div>
         {TABS.map(([id, ic, l]) => (
-          <button key={id} className={"nv" + (id === nav.tab ? " on" : "")} onClick={() => go(id)}><span>{ic}</span>{l}</button>
+          <button key={id} className={"nv" + (id === nav.tab ? " on" : "")} aria-current={id === nav.tab ? "page" : undefined} onClick={() => go(id)}><span>{ic}</span>{t(l)}</button>
         ))}
         <div className="side-bot">
           <button className="sidecard" style={{ "--lc": LV[level].c }} onClick={openLevel}>
@@ -97,7 +115,7 @@ function Shell() {
       </div>
       <nav className="tabs">
         {TABS.map(([id, ic, l]) => (
-          <button key={id} className={id === nav.tab ? "on" : ""} onClick={() => go(id)}><b>{ic}</b>{l}</button>
+          <button key={id} className={id === nav.tab ? "on" : ""} aria-current={id === nav.tab ? "page" : undefined} onClick={() => go(id)}><b>{ic}</b>{t(l)}</button>
         ))}
       </nav>
       <AuthModal />

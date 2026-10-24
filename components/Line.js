@@ -123,7 +123,7 @@ export default function Line({ t, hi, listenOnly, you }) {
       )}
       {mine && <audio className="aud" controls src={mine} aria-label="Your recording" />}
       {res && (
-        <div className="res">
+        <div className="res" aria-live="polite">
           {res.err || (
             <>
               {res.words.map((w, i) => <span key={i} className={res.marks[i] ? "g" : "r"}>{w} </span>)}

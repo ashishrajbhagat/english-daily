@@ -19,8 +19,12 @@ create table if not exists public.leaderboard (
   user_id uuid primary key references auth.users(id) on delete cascade,
   nick text not null check (char_length(nick) between 2 and 20),
   xp int not null default 0,
+  wxp int not null default 0,
+  week text not null default '',
   updated_at timestamptz not null default now()
 );
+alter table public.leaderboard add column if not exists wxp int not null default 0;
+alter table public.leaderboard add column if not exists week text not null default '';
 alter table public.leaderboard enable row level security;
 drop policy if exists "lb read" on public.leaderboard;
 create policy "lb read" on public.leaderboard for select using (true);
@@ -39,11 +43,13 @@ create policy "admin self read" on public.admins for select using (lower(auth.jw
 
 create table if not exists public.custom_items (
   id bigint generated always as identity primary key,
-  kind text not null check (kind in ('phrase','word','phrasal','quiz')),
+  kind text not null check (kind in ('phrase','word','phrasal','quiz','dialogue','reading','lesson')),
   level int not null check (level between 0 and 3),
   data jsonb not null,
   created_at timestamptz not null default now()
 );
+alter table public.custom_items drop constraint if exists custom_items_kind_check;
+alter table public.custom_items add constraint custom_items_kind_check check (kind in ('phrase','word','phrasal','quiz','dialogue','reading','lesson'));
 alter table public.custom_items enable row level security;
 drop policy if exists "ci read" on public.custom_items;
 create policy "ci read" on public.custom_items for select using (true);

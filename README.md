@@ -78,3 +78,18 @@ Everything works without any paid AI. Pronunciation coaching is rule-based (`lib
 
 ## v10: guest limits
 When cloud login is set up, visitors who are not logged in get limited access (edit `lib/access.js`): they can start only the Quick Start roadmap, see only basic stats (XP, streak, level), and cannot use the daily goal, weekly chart, certificate or AI features (AI is also enforced on the server). Everything is unlocked if login is not set up. Their progress is kept and moves to their account when they log in. 17 more grammar lessons (63 in total). The theme switch now lives only in the profile Settings tab.
+
+## v11: next features
+- **Google login**: set `NEXT_PUBLIC_GOOGLE_LOGIN=1` after enabling Google in Supabase (Authentication > Providers > Google). In Google Cloud Console create an OAuth client (Web) and add `https://YOUR-PROJECT.supabase.co/auth/v1/callback` as an authorized redirect URI, then paste the client ID and secret into Supabase.
+- **Weekly leaderboard**: "This week" (Monday to Sunday, resets automatically) and "All time". Run the latest `supabase/schema.sql` (adds two columns).
+- **Spaced repetition**: the mistake notebook now uses dates. A correct answer brings a question back after 1, 3 and 7 days; four correct reviews in a row and it is learned. Wrong answers come back soon.
+- **Hindi mode** (Settings > Language): menus, headings and main buttons. Add more translations in `lib/i18n.js`.
+- **Admin panel** now also adds dialogues, reading passages and grammar lessons. Run the latest `supabase/schema.sql` first (it allows the new content types).
+
+## v12: setup help, full Hindi mode, accessibility, browser tests
+- **`SETUP.md`**: one ordered checklist for Supabase, Vercel, Google login, AI, reminders and launch.
+- **`npm run doctor`** checks your `.env.local` and tells you what is on, what is missing and what is wrong (for example a secret key pasted into a public variable).
+- **Hindi mode** now translates the whole interface (menus, buttons, settings, messages, placeholders) with `lib/autotranslate.js` and the dictionary in `lib/i18n.js`. Learning content stays English. Anything not in the dictionary stays English; add entries to `HI`.
+- **Accessibility**: Escape closes dialogs and focus moves into and back out of them, current page is announced in the navigation, toggle buttons announce their state, results are announced.
+- **Browser tests** (`tests/app.spec.js`, `playwright.config.js`): sideways scrolling at 320, 768, 1440 and 2000 px, header, guest roadmap flow, profile sheet, Hindi mode, privacy and 404 pages, and an automated accessibility scan.
+- Privacy and Terms are fuller templates.
