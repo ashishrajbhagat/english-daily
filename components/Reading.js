@@ -20,13 +20,14 @@ export default function Reading({ lv }) {
 
 function Passage({ r, addXp, rate }) {
   const [ans, setAns] = useState({});
+  const [hide, setHide] = useState(false);
   const right = Object.keys(ans).filter((k) => ans[k] === r[3][k][2]).length;
   return (
     <>
       <div className="card">
         <div className="en">{r[1]}</div>
-        <p style={{ fontSize: 17, lineHeight: 1.7 }}>{r[2]}</p>
-        <div className="row"><button className="b" onClick={() => say(r[2], rate)}>🔊 Read aloud</button></div>
+        {hide ? <p className="sm">🎧 Listening mode: the text is hidden. Play the audio, then answer the questions.</p> : <p style={{ fontSize: 17, lineHeight: 1.7 }}>{r[2]}</p>}
+        <div className="row"><button className="b" onClick={() => say(r[2], rate)}>🔊 Read aloud</button><button className="b" onClick={() => setHide(!hide)}>{hide ? "👁 Show text" : "🎧 Listening mode"}</button></div>
       </div>
       {r[3].map(([q, o, a], k) => (
         <div className="card" key={k}>

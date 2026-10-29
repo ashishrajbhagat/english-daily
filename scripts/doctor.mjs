@@ -44,6 +44,10 @@ else {
 if (!has("NEXT_PUBLIC_SITE_URL")) warn("NEXT_PUBLIC_SITE_URL is empty. Set it to your Vercel URL after the first deploy (sitemap and share image use it).");
 else /^https:\/\//.test(env.NEXT_PUBLIC_SITE_URL) || /localhost/.test(env.NEXT_PUBLIC_SITE_URL) ? ok("Site URL set") : warn("NEXT_PUBLIC_SITE_URL should start with https://");
 
+// email links (the most common launch mistake)
+if (url && has("NEXT_PUBLIC_SITE_URL")) info("Supabase > Authentication > URL Configuration: set Site URL to " + env.NEXT_PUBLIC_SITE_URL + " and add it to Redirect URLs, or email links will open localhost:3000.");
+else if (url) warn("Set NEXT_PUBLIC_SITE_URL, then set the SAME address as Site URL in Supabase (Authentication > URL Configuration). Otherwise confirmation and reset emails open localhost:3000.");
+
 // server key
 if (has("SUPABASE_SERVICE_ROLE_KEY")) { (url ? ok : warn)(url ? "Service key set (delete account and reminders can work)" : "Service key set but Supabase URL is missing"); }
 else info("SUPABASE_SERVICE_ROLE_KEY not set: the Delete account button and background reminders stay off.");

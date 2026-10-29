@@ -193,3 +193,4 @@ h2{font-size:26px}.hero2{padding:24px}.hero2 h2{font-size:30px}.ring{width:108px
 main:focus{outline:none}input[type=search]{margin-bottom:6px}
 .orline{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--mut);font-size:13px;font-weight:700}.orline::before,.orline::after{content:"";flex:1;border-top:2px dashed var(--bd)}
 .sheet:focus,.modal:focus{outline:none}
+.filebtn{display:inline-flex;align-items:center;cursor:pointer}

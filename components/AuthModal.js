@@ -12,13 +12,14 @@ const Switch = ({ on, onChange, label }) => (
 const TITLES = ["Your progress", "Account", "Settings"];
 
 export default function AuthModal() {
-  const { authOpen, closeAuth, user, sync, setSkip, level, openLevel, openInfo, s, resetAll, setRem, setLb, setGoal, setOnd, setShadow, recovery, setRecovery, cloud, access, authTab, setLang } = useApp();
+  const { authOpen, closeAuth, user, sync, setSkip, level, openLevel, openInfo, s, resetAll, setRem, setLb, setGoal, setOnd, setShadow, recovery, setRecovery, cloud, access, authTab, setLang, importProgress } = useApp();
   const [tab, setTab] = useState(0);
   const [mode, setMode] = useState("in");
   const [em, setEm] = useState("");
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [needConfirm, setNeedConfirm] = useState(false);
   const [nick, setNick] = useState(s.nick || "");
   const [theme, setT] = useState("light");
   const [zoom, setZ] = useState("1");
@@ -66,10 +67,10 @@ export default function AuthModal() {
       if (r.error) setMsg(r.error.message); else { setRecovery(false); setPw(""); closeAuth(); }
       return;
     }
-    const r = m === "in" ? await supabase.auth.signInWithPassword({ email: em, password: pw }) : await supabase.auth.signUp({ email: em, password: pw });
+    const r = m === "in" ? await supabase.auth.signInWithPassword({ email: em, password: pw }) : await supabase.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: window.location.origin } });
     setBusy(false);
-    if (r.error) setMsg(r.error.message);
-    else if (m === "up" && !r.data.session) setMsg("A confirmation link was sent to your email. Confirm it, then sign in.");
+    if (r.error) { setMsg(r.error.message); setNeedConfirm(/confirm/i.test(r.error.message)); }
+    else if (m === "up" && !r.data.session) { setNeedConfirm(true); setMsg("A confirmation link was sent to your email. Confirm it, then sign in."); }
     else closeAuth();
   };
 
@@ -112,6 +113,33 @@ export default function AuthModal() {
     setMsg(on ? "Saved. You are on the leaderboard (it updates when your progress syncs)." : "You left the leaderboard.");
   };
 
+  const resend = async () => {
+    setBusy(true); setMsg("");
+    const r = await supabase.auth.resend({ type: "signup", email: em, options: { emailRedirectTo: window.location.origin } });
+    setBusy(false);
+    setMsg(r.error ? r.error.message : "A new confirmation link was sent. Open it in your email.");
+  };
+  const exportData = () => {
+    const blob = new Blob([JSON.stringify({ app: "english-daily", v: 1, data: s })], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "english-daily-backup.json"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  const importData = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const j = JSON.parse(r.result);
+        if (!j || j.app !== "english-daily" || !j.data) throw new Error("bad file");
+        importProgress(j.data);
+        setMsg("Backup restored and merged with your progress.");
+      } catch (x) { setMsg("That file is not a valid English Daily backup."); }
+    };
+    r.readAsText(f);
+    e.target.value = "";
+  };
   const google = async () => {
     const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
     if (error) setMsg(error.message);
@@ -231,6 +259,7 @@ export default function AuthModal() {
                   {m !== "forgot" && <label className="fld">{m === "recovery" ? "New password" : "Password"}<input className="inp" type="password" required minLength={6} autoComplete={m === "in" ? "current-password" : "new-password"} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="At least 6 characters" /></label>}
                   <button className="b p full" type="submit" disabled={busy}>{busy ? "Please wait…" : m === "in" ? "Sign in" : m === "up" ? "Create account" : m === "forgot" ? "Send reset link" : "Update password"}</button>
                   {m === "in" && <button type="button" className="lnk" onClick={() => setMode("forgot")}>Forgot password?</button>}
+                  {needConfirm && em && m !== "forgot" && m !== "recovery" && <button type="button" className="lnk" disabled={busy} onClick={resend}>Resend confirmation email</button>}
                   {m === "forgot" && <button type="button" className="lnk" onClick={() => setMode("in")}>← Back to sign in</button>}
                 </form>
                 {!recovery && <button className="lnk skip" onClick={() => { setSkip(); closeAuth(); }}>Skip for now</button>}
@@ -297,6 +326,10 @@ export default function AuthModal() {
               </div>
               <div className="srow stack">
                 <div><b>🗂️ Your data</b><small>Clears XP, streak, lessons and roadmaps on this device.</small></div>
+                <div className="row" style={{ marginTop: 0 }}>
+                  <button className="b" onClick={exportData}>⬇ Export backup</button>
+                  <label className="b filebtn">⬆ Import backup<input type="file" accept="application/json,.json" onChange={importData} hidden /></label>
+                </div>
                 <button className="b dng full" onClick={() => { if (window.confirm("Reset all your progress on this device? XP, streak, lessons and roadmaps will be cleared.")) { resetAll(); closeAuth(); } }}>Reset my progress</button>
               </div>
               <p className="sm" style={{ marginTop: 14 }}><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></p>

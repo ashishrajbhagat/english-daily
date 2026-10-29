@@ -38,6 +38,11 @@ ok(pvOf(["w", "h", "e", 2], 0) === 2, "phrasal level override");
 DATA.QZ.push(["Custom Q?", ["a", "b"], 0, "e", 3]);
 ok(quizPool(3).some((q) => q[0] === "Custom Q?"), "custom quiz appears at its level");
 DATA.QZ.pop();
+DATA.GR.forEach((g) => ok(g.length === 2 && g[0] && g[1], "quick tip shape " + g[0]));
+DATA.PH.forEach((p) => ok(p.length >= 3 && (p[3] === undefined || (p[3] >= 0 && p[3] <= 3)), "phrase shape " + p[1]));
+DATA.PV.concat(DATA.VO).forEach((w) => ok(w.length >= 3 && (w[3] === undefined || (w[3] >= 0 && w[3] <= 3)), "word shape " + w[0]));
+ok(new Set(DATA.PH.map((p) => p[1])).size === DATA.PH.length, "phrase texts are unique (they are used as keys)");
+DATA.DL.forEach((d) => ok(d.l.length >= 2 && d.l.every((x) => x[0] && x[1]), "dialogue shape " + d.t));
 // spaced repetition
 {
   const t0 = 1e12, day = 864e5;
@@ -54,7 +59,7 @@ ok(weekStart(new Date(2026, 9, 21)) === "2026-10-19", "week starts on Monday");
 ok(weekStart(new Date(2026, 9, 25)) === "2026-10-19" && weekStart(new Date(2026, 9, 26)) === "2026-10-26", "Sunday belongs to the previous Monday's week");
 ok(weekXp({ "2026-10-18": 50, "2026-10-19": 20, "2026-10-21": 30 }, "2026-10-19") === 50, "weekly XP counts only the current week");
 // Hindi mode
-Object.entries(HI).forEach(([k, v]) => ok(v && deva.test(v), "Hindi text missing for: " + k));
+Object.entries(HI).forEach(([k, v]) => ok(v && (deva.test(v) || !/[A-Za-z\u0900-\u097F]/.test(v)), "Hindi text missing for: " + k));
 ok(trString("Quiz") === "क्विज़" && trString("  Quiz ") === "  क्विज़ " && trString("Continue Day ") === "जारी रखें, दिन ", "translator: exact and padded matches");
 ok(trString("Day 3 of 30") === "दिन 3 / 30" && trString("Mistake notebook (2 due)") === "गलतियों की कॉपी (2 बाकी)", "translator: number patterns");
 ok(trString("A phrase that is learning content") === null && trString("   ") === null, "translator: unknown text is left alone");

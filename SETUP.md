@@ -14,7 +14,7 @@ Tick each step. Everything marked (optional) can wait.
 1. Create a free project at supabase.com.
 2. SQL Editor: paste all of `supabase/schema.sql` and Run. It is safe to run again later.
 3. Authentication > Providers: keep Email on. For testing you may turn off "Confirm email".
-4. Authentication > URL Configuration: set Site URL to your live address and add `http://localhost:3000` and your live address to the redirect URLs (password reset needs this).
+4. **Authentication > URL Configuration (do not skip).** Set **Site URL** to your LIVE address (for example `https://english-daily.vercel.app`). Under **Redirect URLs** add `https://english-daily.vercel.app/**` and `http://localhost:3000/**`. If you leave Site URL as `http://localhost:3000`, every confirmation and password-reset email opens localhost and fails on other devices. Emails that were already sent keep the old link: use "Resend confirmation email" in the app.
 5. Settings > API Keys: copy the Project URL and the PUBLISHABLE key into `.env.local`:
    `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Never put the secret key in these.
 6. Make yourself admin (run once, your own email): `insert into public.admins (email) values ('you@example.com');`

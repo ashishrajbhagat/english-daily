@@ -93,3 +93,16 @@ When cloud login is set up, visitors who are not logged in get limited access (e
 - **Accessibility**: Escape closes dialogs and focus moves into and back out of them, current page is announced in the navigation, toggle buttons announce their state, results are announced.
 - **Browser tests** (`tests/app.spec.js`, `playwright.config.js`): sideways scrolling at 320, 768, 1440 and 2000 px, header, guest roadmap flow, profile sheet, Hindi mode, privacy and 404 pages, and an automated accessibility scan.
 - Privacy and Terms are fuller templates.
+
+## v13
+- `npm run syntax` is a dependency-free syntax check for every JS/JSX file (unbalanced brackets, mismatched JSX tags). It is a safety net; `npm run build` remains the real test.
+- Hindi mode covers more messages and numbers inside longer sentences.
+- More content: 24 phrases, 4 dialogues, 8 phrasal verbs, 6 sound pairs and 8 quick grammar tips.
+- Reading passages have a Listening mode (the text is hidden until you want it).
+- Settings > Your data: export a JSON backup of your progress and import it later (also useful for learners who do not log in).
+
+## Troubleshooting: email links open localhost:3000
+1. Supabase > Authentication > URL Configuration: set **Site URL** to your live address and add it (with `/**`) to **Redirect URLs**.
+2. The app now sends `emailRedirectTo` with the address the user signed up from, but Supabase only honours it if that address is in the Redirect URLs list.
+3. Old emails keep the old link. In the app, sign in with the unconfirmed email and tap "Resend confirmation email".
+4. Supabase's built-in email sender has a low hourly limit. If you see "email rate limit exceeded", wait, or set up your own SMTP (Authentication > SMTP Settings).
